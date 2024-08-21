@@ -1,16 +1,33 @@
-# This is a sample Python script.
+import pygame
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+from settings import HEIGHT, WIDTH, ground_space
+from world import World
 
+pygame.init()
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+screen = pygame.display.set_mode((WIDTH, HEIGHT + ground_space))
+pygame.display.set_caption("Flappy Bird")
 
+class Main:
+    def __init__(self, screen):
+        self.screen = screen
 
-# Press the green button in the gutter to run the script.
+    def main(self):
+        world = World(screen)
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    return
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        world.update("jump")
+
+            world.update()
+
+            # Update the display with the new position of the bird
+            pygame.display.flip()
+
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    play = Main(screen)
+    play.main()
