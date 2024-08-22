@@ -1,5 +1,4 @@
 import pygame
-
 from settings import HEIGHT, WIDTH, ground_space
 from world import World
 
@@ -8,9 +7,11 @@ pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT + ground_space))
 pygame.display.set_caption("Flappy Bird")
 
+
 class Main:
     def __init__(self, screen):
         self.screen = screen
+        self.game_state = "waiting"
 
     def main(self):
         world = World(screen)
@@ -21,12 +22,17 @@ class Main:
                     return
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
-                        world.update("jump")
+                        if self.game_state == "waiting":
+                            self.game_state = "playing"
+                        if self.game_state == "playing":
+                            world.update("jump")
 
-            world.update()
+            if self.game_state == "playing":
+                if world.update():
+                    self.game_state = "waiting"
 
-            # Update the display with the new position of the bird
             pygame.display.flip()
+
 
 if __name__ == '__main__':
     play = Main(screen)
