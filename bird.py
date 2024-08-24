@@ -1,24 +1,29 @@
 import pygame
 from settings import HEIGHT, WIDTH, ground_space
 
+pygame.mixer.init()
 
 class Bird:
     def __init__(self, screen):
         self.screen = screen
-        self.size = 50
-        self.color = (255, 255, 255)
+        self.size = 40
+        self.bird_image = pygame.image.load('assets/bird/bluebird-midflap.png')
+        self.bird_image = pygame.transform.scale(self.bird_image, (55, 40))
+        self.background = pygame.image.load('assets/background/background-day.png').convert()
+        self.bg_scaled = pygame.transform.scale(self.background, (WIDTH, HEIGHT))
+        self.jump_sound = pygame.mixer.Sound('assets/audio/audio_wing.ogg')
         self.x = (WIDTH - self.size) // 2
         self.y = ((HEIGHT + ground_space) - self.size) // 2
-        self.move_distance = 1
-        self.gravity = 0.003
+        self.move_distance = 0.8
+        self.gravity = 0.005
         self.velocity = 1
-        self.ground_color = (139, 69, 19)
 
     @property
     def rect(self):
         return pygame.Rect(self.x, self.y, self.size, self.size)
 
     def jump(self):
+        self.jump_sound.play()
         self.velocity = -self.move_distance
 
     def apply_gravity(self):
@@ -33,11 +38,12 @@ class Bird:
             self.velocity = 0
 
     def draw(self):
-        self.screen.fill((0, 191, 255))
+        self.screen.blit(self.bg_scaled, (0, 0))
 
-        pygame.draw.rect(self.screen, self.ground_color, (0, HEIGHT, WIDTH, ground_space))
+        bg_scaled = pygame.transform.scale(self.background, (WIDTH, HEIGHT))
+        self.screen.blit(bg_scaled, (0, 0))
 
-        pygame.draw.rect(self.screen, self.color, self.rect)
+        self.screen.blit(self.bird_image, self.rect)
 
     def update(self):
         self.apply_gravity()

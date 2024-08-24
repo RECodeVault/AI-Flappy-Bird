@@ -4,6 +4,8 @@ from pipe import Pipe
 from game_components import GameComponents
 from settings import WIDTH, HEIGHT, ground_space
 
+pygame.mixer.init()
+
 
 class World:
     def __init__(self, screen):
@@ -14,6 +16,11 @@ class World:
         self.pipe_interval = 200
         self.pipe_spacing = WIDTH // 2
         self.game_components = GameComponents()
+        self.score_font = pygame.font.Font(None, 74)
+        self.death_animation_stage = 0
+        self.death_animation_duration = 30
+        self.point_sound = pygame.mixer.Sound('assets/audio/audio_point.ogg')
+        self.death_sound = pygame.mixer.Sound('assets/audio/audio_hit.ogg')
 
     def add_pipe(self):
         if len(self.pipes) < 2:
@@ -28,6 +35,7 @@ class World:
                 self.pipes.remove(pipe)
 
             if not pipe.passed and self.player.x > pipe.x + pipe.width:
+                self.point_sound.play()
                 pipe.passed = True
                 self.game_components.add_score()
                 print(self.game_components.score)
@@ -62,12 +70,20 @@ class World:
         self.update_pipes()
 
         if self.check_collision():
-            self.reset()
-            self.player.x = (WIDTH - self.player.size) // 2
-            self.player.y = ((HEIGHT + ground_space) - self.player.size) // 2
-            self.player.draw()
+            self.game_over()
             return True
 
         self.draw_pipes()
 
+        score_text = self.score_font.render(f"Score: {self.game_components.get_score()}", True, (255, 255, 255))
+        self.screen.blit(score_text, (20, 20))
+
         return False
+
+    def game_over(self):
+        self.death_sound.play()
+        self.reset()
+        self.player.x = (WIDTH - self.player.size) // 2
+        self.player.y = ((HEIGHT + ground_space) - self.player.size) // 2
+        self.player.draw()
+
