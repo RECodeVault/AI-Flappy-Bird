@@ -1,6 +1,6 @@
 import pygame
 import random
-from settings import WIDTH, HEIGHT, pipe_pair_sizes, pipe_size, pipe_gap, ground_space
+from settings import WIDTH, HEIGHT, pipe_pair_sizes, pipe_size, pipe_gap
 
 
 class Pipe:
@@ -25,8 +25,6 @@ class Pipe:
 
         self.bottom_pipe_image = pygame.transform.scale(self.image, (self.width, HEIGHT // 1.5))
 
-        self.ground_image = pygame.image.load('assets/background/base.png').convert()
-
     def move(self):
         self.x -= self.speed
         self.top_pipe_rect.x = int(self.x)
@@ -36,9 +34,6 @@ class Pipe:
         self.screen.blit(self.bottom_pipe_image, (self.x, self.bottom_pipe_rect.y))
 
         self.screen.blit(self.top_pipe_image, (self.x, self.top_pipe_rect.bottom - self.height))
-
-        self.ground_image = pygame.transform.scale(self.ground_image, (WIDTH, ground_space))
-        self.screen.blit(self.ground_image, (0, HEIGHT))
 
     def is_off_screen(self):
         return self.top_pipe_rect.right < 0

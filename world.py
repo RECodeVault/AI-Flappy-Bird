@@ -2,7 +2,7 @@ import pygame
 from bird import Bird
 from pipe import Pipe
 from game_components import GameComponents
-from settings import WIDTH, HEIGHT, ground_space
+from settings import WIDTH, HEIGHT
 
 pygame.mixer.init()
 
@@ -84,6 +84,6 @@ class World:
         self.death_sound.play()
         self.reset()
         self.player.x = (WIDTH - self.player.size) // 2
-        self.player.y = ((HEIGHT + ground_space) - self.player.size) // 2
+        self.player.y = (HEIGHT - self.player.size) // 2
         self.player.draw()
 
