@@ -1,5 +1,4 @@
 import pygame
-from bird import Bird
 from pipe import Pipe
 from game_components import GameComponents
 from settings import WIDTH, HEIGHT

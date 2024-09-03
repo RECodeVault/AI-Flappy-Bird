@@ -1,5 +1,3 @@
-# TODO: THIS CLASS WILL BE RESPONSIBLE FOR KEEPING SCORE DISPLAYING TEXT ETC.
-
 class GameComponents:
     def __init__(self):
         self.score = 0
