@@ -25,6 +25,14 @@ class Pipe:
 
         self.bottom_pipe_image = pygame.transform.scale(self.image, (self.width, HEIGHT // 1.5))
 
+    @property
+    def top_size(self):
+        return self.top_pipe_rect.height
+
+    @property
+    def bottom_pipe_top(self):
+        return self.bottom_pipe_rect.top
+
     def move(self):
         self.x -= self.speed
         self.top_pipe_rect.x = int(self.x)

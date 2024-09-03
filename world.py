@@ -8,82 +8,80 @@ pygame.mixer.init()
 
 
 class World:
-    def __init__(self, screen):
+    def __init__(self, screen, birds):
         self.screen = screen
-        self.player = Bird(screen)
+        self.birds = birds
         self.pipes = []
         self.pipe_timer = 0
         self.pipe_interval = 200
         self.pipe_spacing = WIDTH // 2
         self.game_components = GameComponents()
+
         self.score_font = pygame.font.Font(None, 74)
-        self.death_animation_stage = 0
-        self.death_animation_duration = 30
-        self.point_sound = pygame.mixer.Sound('assets/audio/audio_point.ogg')
-        self.death_sound = pygame.mixer.Sound('assets/audio/audio_hit.ogg')
 
     def add_pipe(self):
-        if len(self.pipes) < 2:
+        """Add a new pipe if conditions are met."""
+        if not self.pipes or (self.pipes and self.pipes[-1].x < WIDTH - self.pipe_spacing):
             new_pipe = Pipe(self.screen)
-            if not self.pipes or (self.pipes and self.pipes[-1].x < WIDTH - self.pipe_spacing):
-                self.pipes.append(new_pipe)
+            self.pipes.append(new_pipe)
 
     def update_pipes(self):
-        for pipe in self.pipes:
+        """Update the position of pipes and remove those that go off-screen."""
+        for pipe in self.pipes[:]:
             pipe.move()
             if pipe.is_off_screen():
                 self.pipes.remove(pipe)
 
-            if not pipe.passed and self.player.x > pipe.x + pipe.width:
-                self.point_sound.play()
-                pipe.passed = True
-                self.game_components.add_score()
-                print(self.game_components.score)
-
     def draw_pipes(self):
+        """Draw all the pipes on the screen."""
         for pipe in self.pipes:
             pipe.draw()
 
-    def check_collision(self):
-        for pipe in self.pipes:
-            if self.player.rect.colliderect(pipe.top_pipe_rect) or self.player.rect.colliderect(pipe.bottom_pipe_rect):
-                return True
-
-        if self.player.rect.bottom >= HEIGHT:
-            return True
-
-        return False
-
-    def reset(self):
-        self.__init__(self.screen)
-
-    def update(self, player_input=None):
-        if player_input == "jump":
-            self.player.jump()
-
-        self.player.update()
+    def update(self):
+        """Update the world, including pipes."""
+        # Increment the pipe timer and add a new pipe when the interval is met
         self.pipe_timer += 1
         if self.pipe_timer > self.pipe_interval:
             self.add_pipe()
             self.pipe_timer = 0
 
+            for bird in self.birds:
+                if bird.alive:
+                    for pipe in self.pipes:
+                        if not pipe.passed and bird.x > pipe.x + pipe.width:
+                            pipe.passed = True
+                            self.game_components.add_score()
+
         self.update_pipes()
-
-        if self.check_collision():
-            self.game_over()
-            return True
-
         self.draw_pipes()
 
-        score_text = self.score_font.render(f"Score: {self.game_components.get_score()}", True, (255, 255, 255))
-        self.screen.blit(score_text, (20, 20))
+    def check_collision(self):
+        """Check for collisions between birds and pipes."""
+        for bird in self.birds:
+            if not bird.alive:
+                continue
+            for pipe in self.pipes:
+                if bird.rect.colliderect(pipe.top_pipe_rect) or bird.rect.colliderect(pipe.bottom_pipe_rect):
+                    return True
+
+            if bird.rect.bottom >= HEIGHT:
+                return True
 
         return False
 
-    def game_over(self):
-        self.death_sound.play()
-        self.reset()
-        self.player.x = (WIDTH - self.player.size) // 2
-        self.player.y = (HEIGHT - self.player.size) // 2
-        self.player.draw()
+    def reset(self):
+        """Reset the world and all birds."""
+        self.__init__(self.screen, self.birds)
+        for bird in self.birds:
+            bird.reset()
+
+    def update_game_statistics_visual(self, generation):
+        score_text = self.score_font.render(f"Score: {self.game_components.get_score()}", True, (255, 255, 255))
+        self.screen.blit(score_text, (20, 20))
+
+        gen_text = self.score_font.render(f"Gen: {generation}", True, (255, 255, 255))
+        self.screen.blit(gen_text, (20, 70))
+
+        population_text = self.score_font.render(f"Alive: {sum(bird.alive for bird in self.birds)}", True, (255, 255, 255))
+        self.screen.blit(population_text, (20, 120))
 
